@@ -1,0 +1,17 @@
+python-dotenv
+asyncpg
+fastapi
+uvicorn
+sqlalchemy
+alembic
+python-jose[cryptography]
+passlib[bcrypt]
+python-dotenv
+pydantic[email]
+argon2-cffi
+psycopg2-binary
+python-multipart
+httpx
+redis
+fastapi-cache2
+nanoid
