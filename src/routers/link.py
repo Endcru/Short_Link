@@ -76,6 +76,17 @@ async def get_all_links(
     return LinkList(total=total, links=link_responses)
 
 @router.get(
+    "/project/{project_name}",
+    response_model=LinkList,
+    summary="Get all links from project / Получить все ссылки проекта",
+    description="Get all links from project / Получить все ссылки  проекта"
+)
+async def get_project_links(project_name: str, current_user: User = Depends(get_current_user)) -> LinkList:
+    links, total = await link_service.get_project_links(project_name, current_user)
+    link_responses = [LinkResponse.model_validate(link) for link in links]
+    return LinkList(total=total, links=link_responses)
+
+@router.get(
     "/{short_code}",
     response_model=LinkResponse,
     summary="Redirext to original URL / Перенаправление на оригинальную URL-адрес",

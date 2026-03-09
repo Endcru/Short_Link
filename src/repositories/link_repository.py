@@ -22,8 +22,8 @@ class LinkRepository(BaseRepository[Link]):
             result = await self.session.execute(stmt)
             return result.scalars().all()
         
-    async def get_by_project(self, project: str) -> Sequence[Link]:
-            stmt = select(Link).where(Link.project == project)
+    async def get_by_project(self, project: str, user_id: int) -> Sequence[Link]:
+            stmt = select(Link).where(Link.project == project, Link.user_id == user_id)
             result = await self.session.execute(stmt)
             return result.scalars().all()
     
