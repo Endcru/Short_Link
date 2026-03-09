@@ -58,6 +58,18 @@ class LinkService:
 
             return link_dtos, total
     
+    async def search_original_url(self, url: str, user: User) -> Sequence[LinkInDB]:
+        async with UnitOfWork() as uow:
+            if user:
+                links = await uow.links.get_by_original_url(url, user.id)
+            else:
+                links = await uow.links.get_by_original_url_unauthorized(url)
+
+            link_dtos = [LinkInDB.model_validate(link) for link in links]
+            total = len(links)
+
+            return link_dtos, total
+    
     async def check_short_code_exists(self, short_code: str) -> bool:
         async with UnitOfWork() as uow:
             link = await uow.links.get_by_short_code(short_code)

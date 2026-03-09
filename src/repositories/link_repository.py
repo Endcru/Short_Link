@@ -17,8 +17,13 @@ class LinkRepository(BaseRepository[Link]):
             result = await self.session.execute(stmt)
             return result.scalar_one_or_none()
         
-    async def get_by_original_url(self, original_url: str) -> Sequence[Link]:
-            stmt = select(Link).where(Link.original_url == original_url)
+    async def get_by_original_url(self, original_url: str, user_id: int ) -> Sequence[Link]:
+            stmt = select(Link).where(Link.original_url == original_url, Link.user_id == user_id)
+            result = await self.session.execute(stmt)
+            return result.scalars().all()
+
+    async def get_by_original_url_unauthorized(self, original_url: str) -> Sequence[Link]:
+            stmt = select(Link).where(Link.original_url == original_url, Link.user_id.is_(None))
             result = await self.session.execute(stmt)
             return result.scalars().all()
         
