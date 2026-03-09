@@ -13,7 +13,7 @@ from typing import Union
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 
-oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/user/login", auto_error=False)
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     try:
