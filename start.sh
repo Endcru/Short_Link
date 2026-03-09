@@ -1,7 +1,8 @@
 #!/bin/bash
+set -e
 
 export PYTHONPATH=$(pwd)/src
 
 alembic upgrade head
 
-python src/main.py
+exec python src/main.py

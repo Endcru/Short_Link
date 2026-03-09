@@ -48,7 +48,7 @@ class Link(Base):
     last_transition_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
     user_registred: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     project: Mapped[str] = mapped_column(String(255), index=True, nullable=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("short-link.users.id", ondelete="SET NULL"), nullable=True, index=True)
     user: Mapped[Optional["User"]] = relationship(back_populates="links", lazy="selectin", foreign_keys=[user_id])
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
