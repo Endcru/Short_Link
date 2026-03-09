@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, status
 from fastapi.exceptions import RequestValidationError
@@ -13,9 +14,24 @@ from redis import asyncio as aioredis
 
 from database.database import init_db
 from routers import user, link
+from services.link_service import LinkService
+from config import DELETE_INTERVAL_SECONDS
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+async def expired_links_delete_task():
+    link_service = LinkService()
+    while True:
+        try:
+            deleted = await link_service.delete_expired_links()
+            if deleted > 0:
+                logger.info(f"Удалено истекших ссылок: {deleted}")
+            await asyncio.sleep(DELETE_INTERVAL_SECONDS)
+        except Exception as e:
+            logger.exception(f"Ошибка при удалении истекших ссылок: {e}")
+            await asyncio.sleep(DELETE_INTERVAL_SECONDS)
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -29,9 +45,14 @@ async def lifespan(app: FastAPI):
     FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
     print("Redis инициализирован")
 
+    cleanup_task = asyncio.create_task(expired_links_delete_task())
+    logger.info("Запуск удаления истёкших ссылок")
+
     yield
 
     # Shutdown / Завершение
+    cleanup_task.cancel()
+    await cleanup_task
     print("Завершение работы...")
 
 # Create FastAPI application / Создать FastAPI приложение

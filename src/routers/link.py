@@ -1,13 +1,13 @@
 from typing import Optional
+from fastapi_cache.decorator import cache
 from fastapi import APIRouter, status, Query, Depends, HTTPException
-from services.schemas import UserCreate, UserUpdate, UserResponse, UserList
-from services.user_service import UserService
 from services.user_service import get_current_user, get_optional_current_user
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from database.models import User, Link
 from services.link_service import LinkService
-from services.schemas import LinkCreate, LinkResponse, LinkList
+from services.schemas import LinkCreate, LinkResponse, LinkList, LinkUpdate
 from fastapi.responses import RedirectResponse
+
+SHORT_CODES_BLOCK = ["all", "project", "search"] #Эти шорт коды нельзя использовать так как они совпадают к роутами
 
 router = APIRouter(
     prefix="/link",
@@ -26,22 +26,38 @@ link_service = LinkService()
 )
 async def create_link(link_data: LinkCreate, current_user: User = Depends(get_optional_current_user)) -> LinkResponse:
     if current_user:
-        if link_data.short_code:
-            short_code_exists = await link_service.check_short_code_exists(link_data.short_code)
+        if link_data.custom_alias:
+            short_code_exists = await link_service.check_short_code_exists(link_data.custom_alias)
             if short_code_exists:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="Short code already exists / Короткий код уже существует"
+                    detail="Alias already exists / Короткий код уже существует"
                 )
-        link = await link_service.create_link_authorized(link_data)
+            if link_data.custom_alias in SHORT_CODES_BLOCK:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Alias can not be used / Этот короткий код не может быть использован"
+                )
+        link = await link_service.create_link_authorized(link_data, current_user)
     else:
-        if link_data.short_code:
+        if link_data.custom_alias:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Short code is not supported for unauthorized users / Короткий код не поддерживается для неавторизованных пользователей"
+                detail="Alias is not supported for unauthorized users / Короткий код не поддерживается для неавторизованных пользователей"
             )
         link = await link_service.create_link_unauthorized(link_data)
     return LinkResponse.model_validate(link)
+
+@router.patch(
+    "/{short_code}",
+    response_model=LinkResponse,
+    summary="Update link / Обновить ссылку",
+    description="Update link information / Обновить информацию о ссылке"
+)
+async def update_link(short_code: str, link_data: LinkUpdate, current_user: User = Depends(get_current_user)) -> LinkResponse:
+    link = await link_service.update_link(short_code, link_data, current_user)
+    return LinkResponse.model_validate(link)
+
 
 
 @router.get(
@@ -69,11 +85,46 @@ async def get_all_links(
     return LinkList(total=total, links=link_responses)
 
 @router.get(
+    "/project/{project_name}",
+    response_model=LinkList,
+    summary="Get all links from project / Получить все ссылки проекта",
+    description="Get all links from project / Получить все ссылки  проекта"
+)
+async def get_project_links(project_name: str, current_user: User = Depends(get_current_user)) -> LinkList:
+    links, total = await link_service.get_project_links(project_name, current_user)
+    link_responses = [LinkResponse.model_validate(link) for link in links]
+    return LinkList(total=total, links=link_responses)
+
+
+@router.get(
+    "/search",
+    response_model=LinkList,
+    summary="Get all links of original link / Получить все ссылки оригинальной ссылки",
+    description="Get all links of original link / Получить все ссылки оригинальной ссылки"
+)
+@cache(expire=60)
+async def search_original_url(original_url: str, current_user: User = Depends(get_optional_current_user)) -> LinkList:
+    links, total = await link_service.search_original_url(original_url, current_user)
+    link_responses = [LinkResponse.model_validate(link) for link in links]
+    return LinkList(total=total, links=link_responses)
+
+@router.get(
     "/{short_code}",
     response_model=LinkResponse,
     summary="Redirext to original URL / Перенаправление на оригинальную URL-адрес",
     description="Redirect to original URL / Перенаправление на оригинальную URL-адрес"
 )
+@cache(expire=60)
 async def redirect_to_original_url(short_code: str) -> RedirectResponse:
     original_url = await link_service.use_short_code(short_code)
     return RedirectResponse(url=original_url)
+
+@router.delete(
+    "/{short_code}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Delete link / Удалить ссылку",
+    description="Delete link by short_code / Удалить ссылку по short_code"
+)
+async def delete_link(short_code: str, current_user: User = Depends(get_current_user)) -> None:
+    await link_service.delete_link(short_code, current_user)
+    # Return 204 No Content / Вернуть 204 No Content

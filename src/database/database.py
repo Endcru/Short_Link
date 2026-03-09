@@ -4,7 +4,8 @@ from sqlalchemy import select
 from services.security import hash_password
 from config import ADMIN_PASSWORD, DATABASE_URL
 
-class Base(DeclarativeBase): pass
+class Base(DeclarativeBase):
+    __table_args__ = {"schema": "short-link"}
 
 engine = create_async_engine(
     DATABASE_URL,
