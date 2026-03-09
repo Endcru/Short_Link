@@ -98,6 +98,7 @@ class LinkService:
                 )
 
             await uow.links.delete(link.id)
+            await uow.commit()
 
     async def update_link(self, short_code: str, link_data: LinkUpdate, user: User) -> LinkInDB:
         async with UnitOfWork() as uow:

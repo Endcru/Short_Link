@@ -1,4 +1,5 @@
 from typing import Optional
+from fastapi_cache.decorator import cache
 from fastapi import APIRouter, status, Query, Depends, HTTPException
 from services.user_service import get_current_user, get_optional_current_user
 from database.models import User, Link
@@ -94,12 +95,14 @@ async def get_project_links(project_name: str, current_user: User = Depends(get_
     link_responses = [LinkResponse.model_validate(link) for link in links]
     return LinkList(total=total, links=link_responses)
 
+
 @router.get(
     "/search",
     response_model=LinkList,
     summary="Get all links of original link / Получить все ссылки оригинальной ссылки",
     description="Get all links of original link / Получить все ссылки оригинальной ссылки"
 )
+@cache(expire=60)
 async def search_original_url(original_url: str, current_user: User = Depends(get_optional_current_user)) -> LinkList:
     links, total = await link_service.search_original_url(original_url, current_user)
     link_responses = [LinkResponse.model_validate(link) for link in links]
@@ -111,6 +114,7 @@ async def search_original_url(original_url: str, current_user: User = Depends(ge
     summary="Redirext to original URL / Перенаправление на оригинальную URL-адрес",
     description="Redirect to original URL / Перенаправление на оригинальную URL-адрес"
 )
+@cache(expire=60)
 async def redirect_to_original_url(short_code: str) -> RedirectResponse:
     original_url = await link_service.use_short_code(short_code)
     return RedirectResponse(url=original_url)
