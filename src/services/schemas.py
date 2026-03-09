@@ -19,11 +19,6 @@ class UserCreate(BaseModel):
         max_length=255,
         description="User password / password пользователя"
     )
-    api_key: str = Field(
-        ...,
-        max_length=255,
-        description="DEEPSEEK API KEY"
-    )
     is_active: bool = Field(
         default=True,
         description="Whether user is active / Активен ли пользователь"
@@ -32,7 +27,6 @@ class UserCreate(BaseModel):
 
 class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=100)
-    api_key: Optional[str] = Field(None, max_length=255)
     email: Optional[EmailStr] = None
     is_active: Optional[bool] = None
     is_admin: Optional[bool] = None
@@ -41,7 +35,6 @@ class UserInDB(BaseModel):
     id: int
     username: str
     email: str
-    api_key: str
     is_active: bool
     is_admin: bool
     created_at: datetime
@@ -110,6 +103,110 @@ class UserList(BaseModel):
                         "is_admin": False,
                         "created_at": "2024-01-01T12:00:00",
                         "updated_at": "2024-01-01T12:00:00"
+                    }
+                ]
+            }
+        }
+    )
+
+class LinkCreate(BaseModel):
+    original_url: str = Field(
+        ...,
+        max_length=255,
+        description="Original URL / Оригинальная URL-адреса"
+    )
+    short_code: str = Field(
+        default=None,
+        max_length=255,
+        description="Short code / Короткий код"
+    )
+    project: str = Field(
+        default=None,
+        max_length=255,
+        description="Project / Проект"
+    )
+    
+class LinkUpdate(BaseModel):
+    original_url: Optional[str] = Field(None, max_length=255)
+    short_code: Optional[str] = Field(None, max_length=255)
+    user_registred: Optional[bool] = None
+    project: Optional[str] = Field(None, max_length=255)
+
+class LinkInDB(BaseModel):
+    id: int
+    original_url: str
+    short_code: str
+    user_registred: bool
+    project: Optional[str] = None
+    transitions: int
+    last_transition_at: Optional[datetime] = None
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(  
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "id": 1,
+                "original_url": "https://example.com",
+                "short_code": "1234567890",
+                "user_registred": True,
+                "project": "project",
+                "transitions": 100,
+                "last_transition_at": "2024-01-01T12:00:00",
+                "created_at": "2024-01-01T12:00:00",
+                "updated_at": "2024-01-01T12:00:00"
+            }
+        }
+    )
+
+
+class LinkResponse(BaseModel):
+    id: int
+    original_url: str
+    short_code: str
+    user_registred: bool
+    project: Optional[str] = None
+    transitions: int
+    last_transition_at: Optional[datetime] = None
+
+    model_config = ConfigDict(
+        from_attributes=True,
+        json_schema_extra={
+            "example": {
+                "id": 1,
+                "original_url": "https://example.com",
+                "short_code": "1234567890",
+                "user_registred": True,
+                "project": "project",
+                "transitions": 100,
+                "last_transition_at": "2024-01-01T12:00:00",
+            }
+        }
+    )
+
+
+class LinkList(BaseModel):
+    """
+    DTO for paginated list of links / DTO для списка ссылок
+
+    """
+    total: int = Field(description="Total number of links / Общее количество ссылок")
+    links: list[LinkResponse] = Field(description="List of links / Список ссылок")
+
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "total": 2, 
+                "links": [
+                    {
+                        "id": 1,
+                        "original_url": "https://example.com",
+                        "short_code": "1234567890",
+                        "user_registred": True,
+                        "project": "project",
+                        "transitions": 100,
+                        "last_transition_at": "2024-01-01T12:00:00",
                     }
                 ]
             }

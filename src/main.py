@@ -5,8 +5,14 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import logging
 
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+
+from redis import asyncio as aioredis
+
 from database.database import init_db
-from routers import user
+from routers import user, link
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,6 +23,11 @@ async def lifespan(app: FastAPI):
     print("Инициализация БД...")
     await init_db()
     print("БД инициализирована")
+
+    print("Инициализация Redis...")
+    redis = aioredis.from_url("redis://localhost")
+    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+    print("Redis инициализирован")
 
     yield
 
@@ -41,8 +52,10 @@ async def validation_exception_handler(request, exc):
         content={"detail": "bad request"}
     )
 
+
 # Include routers / Подключить роутеры
 app.include_router(user.router)
+app.include_router(link.router)
 
 
 @app.get(

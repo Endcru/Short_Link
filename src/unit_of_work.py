@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.database import async_session_maker
 from repositories.user_repository import UserRepository
+from repositories.link_repository import LinkRepository
 
 
 class UnitOfWork:
@@ -20,6 +21,7 @@ class UnitOfWork:
         """Initialize UoW without session / Инициализировать UoW без сессии"""
         self._session: Optional[AsyncSession] = None
         self._users: Optional[UserRepository] = None
+        self._links: Optional[LinkRepository] = None
 
     async def __aenter__(self):
         """
@@ -32,7 +34,7 @@ class UnitOfWork:
         self._session = async_session_maker()
 
         self._users = UserRepository(self._session)
-
+        self._links = LinkRepository(self._session)
         return self
 
     async def __aexit__(self, exc_type, exc_val, exc_tb):
@@ -66,6 +68,15 @@ class UnitOfWork:
             raise RuntimeError("UnitOfWork not initialized. Use 'async with UnitOfWork()' / UnitOfWork не инициализирован")
         return self._users
     
+    @property
+    def links(self) -> LinkRepository:
+        """
+        Access to Link repository / Доступ к репозиторию Link
+        """
+        if self._links is None:
+            raise RuntimeError("UnitOfWork not initialized. Use 'async with UnitOfWork()' / UnitOfWork не инициализирован")
+        return self._links
+
     async def commit(self) -> None:
         """
         Commit all changes / Закоммитить все изменения

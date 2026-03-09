@@ -12,3 +12,6 @@ argon2-cffi
 psycopg2-binary
 python-multipart
 httpx
+redis
+fastapi-cache2
+nanoid

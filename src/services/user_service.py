@@ -9,8 +9,11 @@ from services.security import check_password, create_access_token
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt, JWTError
 from services.security import KEY, ALG
+from typing import Union
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
+
+oauth2_scheme_optional = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
     try:
@@ -30,6 +33,25 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> UserInDB:
         user = await uow.users.get_by_id(int(user_id))
         if not user:
             raise HTTPException(status_code=401)
+        return UserInDB.model_validate(user)
+
+async def get_optional_current_user(token: str = Depends(oauth2_scheme_optional)) -> Union[UserInDB, None]:
+    try:
+        if not token:
+            return None
+        payload = jwt.decode(token, KEY, algorithms=[ALG])
+        user_id: str = payload.get("sub")
+
+        if not user_id:
+            return None
+
+    except JWTError:
+        return None
+
+    async with UnitOfWork() as uow:
+        user = await uow.users.get_by_id(int(user_id))
+        if not user:
+            return None
         return UserInDB.model_validate(user)
 
 class UserService:
