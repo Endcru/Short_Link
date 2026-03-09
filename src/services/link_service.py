@@ -53,3 +53,23 @@ class LinkService:
         async with UnitOfWork() as uow:
             link = await uow.links.get_by_short_code(short_code)
             return link is not None
+    
+    async def delete_link(self, short_code: str, user: User) -> None:
+
+        async with UnitOfWork() as uow:
+            link = await uow.links.get_by_short_code(short_code)
+            if not link:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Link with shortcode {short_code} not found / Ссылка с shortcode {short_code} не найдена"
+                )
+            
+            if link.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access denied, wrong user / Нет доступа, неправильный пользователь"
+                )
+
+            await uow.links.delete(link.id)
+
+            await uow.commit()
