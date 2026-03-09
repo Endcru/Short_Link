@@ -31,7 +31,7 @@ class LinkFactory:
     def create_for_authorized_user(dto: LinkCreate, user: User) -> Link:
         link = Link(
             original_url=dto.original_url,
-            short_code=dto.short_code if dto.short_code else generate_random_short_code(),
+            short_code=dto.custom_alias if dto.custom_alias else generate_random_short_code(),
             user_registred=True,
             project=dto.project,
             transitions=0,

@@ -2,7 +2,7 @@ from typing import Optional, Sequence
 from fastapi import HTTPException, status, Depends
 
 from database.models import Link
-from services.schemas import LinkCreate, LinkInDB
+from services.schemas import LinkCreate, LinkInDB, LinkUpdate
 from unit_of_work import UnitOfWork
 from factories.link_factory import LinkFactory
 from database.models import User
@@ -81,4 +81,36 @@ class LinkService:
 
             await uow.links.delete(link.id)
 
+    async def update_link(self, short_code: str, link_data: LinkUpdate, user: User) -> LinkInDB:
+        async with UnitOfWork() as uow:
+            link = await uow.links.get_by_short_code(short_code)
+            if not link:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Link with shortcode {short_code} not found / Ссылка с shortcode {short_code} не найдена"
+                )
+            
+            if link.user_id != user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail=f"Access denied, wrong user / Нет доступа, неправильный пользователь"
+                )
+            
+            if link_data.custom_alias:
+                link_check = await uow.links.get_by_short_code(link_data.custom_alias)
+                if link_check is not None:
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Alias already exists / Короткий код уже существует"
+                    )
+
+            update_data = link_data.model_dump(exclude_unset=True)
+
+            if "custom_alias" in update_data:
+                update_data["short_code"] = update_data.pop("custom_alias")
+
+            updated_link = await uow.links.update(link.id, **update_data)
+
             await uow.commit()
+
+            return LinkInDB.model_validate(updated_link)

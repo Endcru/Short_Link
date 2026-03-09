@@ -115,7 +115,7 @@ class LinkCreate(BaseModel):
         max_length=255,
         description="Original URL / Оригинальная URL-адреса"
     )
-    short_code: str = Field(
+    custom_alias: str = Field(
         default=None,
         max_length=255,
         description="Short code / Короткий код"
@@ -127,9 +127,7 @@ class LinkCreate(BaseModel):
     )
     
 class LinkUpdate(BaseModel):
-    original_url: Optional[str] = Field(None, max_length=255)
-    short_code: Optional[str] = Field(None, max_length=255)
-    user_registred: Optional[bool] = None
+    custom_alias: Optional[str] = Field(None, max_length=255)
     project: Optional[str] = Field(None, max_length=255)
 
 class LinkInDB(BaseModel):
