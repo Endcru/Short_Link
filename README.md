@@ -30,9 +30,9 @@ API доступен по ссылке: [Сокращатель ссылок](ht
 
 ### Пример работы API
 
-![Пример работы API](images/link_create.png)
+![Создание сокрашённой ссылки](images/link_create.png)
 
-![Пример работы API](images/link_statisitc.png)
+![Получение статистики сокращённой ссылки](images/link_statistic.png)
 
 Ссылка для проверки работы приложения: https://short-link-isite.ondigitalocean.app/link/youtube
 
