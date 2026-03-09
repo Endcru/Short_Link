@@ -1,10 +1,10 @@
 from typing import Optional, Sequence
-from sqlalchemy import select, or_
+from sqlalchemy import select, or_, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.models import Link
 from repositories.base import BaseRepository
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 class LinkRepository(BaseRepository[Link]):
@@ -34,5 +34,13 @@ class LinkRepository(BaseRepository[Link]):
     
     async def increment_transitions(self, link: Link):
         link.transitions += 1
-        link.last_transition_at = datetime.now()
-        await self.session.commit()    
+        link.last_transition_at = datetime.now(timezone.utc)
+        await self.session.commit()
+
+    async def delete_expired_links(self) -> int:
+        """Delete links where expires_at has passed. Returns count of deleted links."""
+        now = datetime.now(timezone.utc)
+        stmt = delete(Link).where(Link.expires_at.isnot(None), Link.expires_at <= now)
+        result = await self.session.execute(stmt)
+        await self.session.flush()
+        return result.rowcount or 0    

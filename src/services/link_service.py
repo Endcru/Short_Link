@@ -74,6 +74,12 @@ class LinkService:
         async with UnitOfWork() as uow:
             link = await uow.links.get_by_short_code(short_code)
             return link is not None
+
+    async def delete_expired_links(self) -> int:
+        async with UnitOfWork() as uow:
+            deleted = await uow.links.delete_expired_links()
+            await uow.commit()
+            return deleted
     
     async def delete_link(self, short_code: str, user: User) -> None:
 

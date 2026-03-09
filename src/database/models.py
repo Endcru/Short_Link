@@ -46,6 +46,7 @@ class Link(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
     transitions: Mapped[int] = mapped_column(Integer, default=0)
     last_transition_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=True)
+    expires_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     user_registred: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     project: Mapped[str] = mapped_column(String(255), index=True, nullable=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("short-link.users.id", ondelete="SET NULL"), nullable=True, index=True)

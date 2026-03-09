@@ -6,7 +6,7 @@ from services.link_service import LinkService
 from services.schemas import LinkCreate, LinkResponse, LinkList, LinkUpdate
 from fastapi.responses import RedirectResponse
 
-SHORT_CODES_BLOCK = ["all", "project"] #Эти шорт коды нельзя использовать так как они совпадают к роутами
+SHORT_CODES_BLOCK = ["all", "project", "search"] #Эти шорт коды нельзя использовать так как они совпадают к роутами
 
 router = APIRouter(
     prefix="/link",
@@ -95,7 +95,7 @@ async def get_project_links(project_name: str, current_user: User = Depends(get_
     return LinkList(total=total, links=link_responses)
 
 @router.get(
-    "/links/search",
+    "/search",
     response_model=LinkList,
     summary="Get all links of original link / Получить все ссылки оригинальной ссылки",
     description="Get all links of original link / Получить все ссылки оригинальной ссылки"

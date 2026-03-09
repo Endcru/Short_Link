@@ -1,6 +1,6 @@
 from datetime import datetime
-from typing import Optional, Annotated, Union, Literal
-from pydantic import BaseModel, EmailStr, Field, ConfigDict
+from typing import Optional
+from pydantic import BaseModel, EmailStr, Field, ConfigDict, field_validator
 
 
 class UserCreate(BaseModel):
@@ -115,20 +115,42 @@ class LinkCreate(BaseModel):
         max_length=255,
         description="Original URL / Оригинальная URL-адреса"
     )
-    custom_alias: str = Field(
+    custom_alias: Optional[str] = Field(
         default=None,
         max_length=255,
         description="Short code / Короткий код"
     )
-    project: str = Field(
+    project: Optional[str] = Field(
         default=None,
         max_length=255,
         description="Project / Проект"
     )
+    expires_at: Optional[datetime] = Field(
+        default=None,
+        description="Expiration datetime (minute precision) / Время истечения срока (точность до минуты)."
+    )
+
+    @field_validator("expires_at")
+    @classmethod
+    def validate_expires_at(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value and value <= datetime.now():
+            raise ValueError("expires_at must be in the future")
+        return value
     
 class LinkUpdate(BaseModel):
     custom_alias: Optional[str] = Field(None, max_length=255)
     project: Optional[str] = Field(None, max_length=255)
+    expires_at: Optional[datetime] = Field(
+        default=None,
+        description="Expiration datetime (minute precision) / Время истечения срока (точность до минуты)."
+    )
+
+    @field_validator("expires_at")
+    @classmethod
+    def validate_expires_at(cls, value: Optional[datetime]) -> Optional[datetime]:
+        if value and value <= datetime.now():
+            raise ValueError("expires_at must be in the future")
+        return value
 
 class LinkInDB(BaseModel):
     id: int
@@ -138,6 +160,7 @@ class LinkInDB(BaseModel):
     project: Optional[str] = None
     transitions: int
     last_transition_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
@@ -167,6 +190,7 @@ class LinkResponse(BaseModel):
     project: Optional[str] = None
     transitions: int
     last_transition_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
 
     model_config = ConfigDict(
         from_attributes=True,

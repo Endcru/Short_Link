@@ -23,6 +23,7 @@ class LinkFactory:
             project=None,
             transitions=0,
             last_transition_at=None,
+            expires_at=dto.expires_at,
             user=None
         )
         return link
@@ -36,6 +37,7 @@ class LinkFactory:
             project=dto.project,
             transitions=0,
             last_transition_at=None,
+            expires_at=dto.expires_at,
             user=user
         )
         return link
@@ -48,6 +50,7 @@ class LinkFactory:
         project: str = None,
         transitions: int = 0,
         last_transition_at: datetime = None,
+        expires_at: Optional[datetime] = None,
         user: Optional["User"] = None
     ) -> Link:
         return Link(
@@ -57,5 +60,6 @@ class LinkFactory:
             project=project,
             transitions=transitions,
             last_transition_at=last_transition_at,
+            expires_at=expires_at,
             user=user
         )
