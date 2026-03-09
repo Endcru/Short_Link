@@ -6,13 +6,17 @@
 
 1. Клонируйте репозиторий:
 
+```bash
 git clone https://github.com/Endcru/Short_Link.git
+```
 
 2. Перейдите в папку проекта
 
 3. Запустите приложение с помощью Docker Compose:
 
-docker compose up --buil
+```bash
+docker compose up --build
+```
 
 4. После сборки сваггер будет доступен по адресу:
 
@@ -22,13 +26,13 @@ http://localhost:8009/docs
 
 API доступен по ссылке: [Сокращатель ссылок](https://short-link-isite.ondigitalocean.app/docs#/)
 
-[Описание API](images/swagger.png)
+![Описание API](images/swagger.png)
 
 ### Пример работы API
 
-![Пример работы API](assets/link_create.png)
+![Пример работы API](images/link_create.png)
 
-![Пример работы API](assets/link_statisitc.png)
+![Пример работы API](images/link_statisitc.png)
 
 Ссылка для проверки работы приложения: https://short-link-isite.ondigitalocean.app/link/youtube
 
