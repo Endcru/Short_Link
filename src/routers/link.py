@@ -33,7 +33,7 @@ async def create_link(link_data: LinkCreate, current_user: User = Depends(get_op
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="Short code already exists / Короткий код уже существует"
                 )
-        link = await link_service.create_link_authorized(link_data)
+        link = await link_service.create_link_authorized(link_data, current_user)
     else:
         if link_data.short_code:
             raise HTTPException(

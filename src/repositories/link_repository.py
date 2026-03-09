@@ -30,5 +30,4 @@ class LinkRepository(BaseRepository[Link]):
     async def increment_transitions(self, link: Link):
         link.transitions += 1
         link.last_transition_at = datetime.now()
-        await self.session.commit()
-    
+        await self.session.commit()    

@@ -12,7 +12,8 @@ import string
 class LinkService:
     async def create_link_authorized(self, link_data: LinkCreate, user: User) -> LinkInDB:
         async with UnitOfWork() as uow:
-            link = LinkFactory.create_for_authorized_user(link_data, user)
+            db_user = await uow.users.get_by_id(user.id)
+            link = LinkFactory.create_for_authorized_user(link_data, db_user)
             created_link = await uow.links.create(link)
             await uow.commit()
             return LinkInDB.model_validate(created_link)
@@ -47,3 +48,8 @@ class LinkService:
             link_dtos = [LinkInDB.model_validate(link) for link in links]
 
             return link_dtos, total
+    
+    async def check_short_code_exists(self, short_code: str) -> bool:
+        async with UnitOfWork() as uow:
+            link = await uow.links.get_by_short_code(short_code)
+            return link is not None
