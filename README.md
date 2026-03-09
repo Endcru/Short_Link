@@ -20,7 +20,7 @@ docker compose up --build
 
 4. После сборки сваггер будет доступен по адресу:
 
-http://localhost:8009/docs
+http://localhost:8008/docs
 
 ### Описание API
 
@@ -65,11 +65,9 @@ API доступен по ссылке: [Сокращатель ссылок](ht
 | `id`                 | int      | Уникальный идентификатор ссылки           |
 | `original_url`       | str      | Исходная URL                              |
 | `short_code`         | str      | Короткий код ссылки (уникальный)          |
-| `is_active`          | bool     | Активность ссылки                         |
 | `transitions`        | int      | Количество переходов по ссылке            |
 | `last_transition_at` | datetime | Дата последнего перехода                  |
 | `expires_at`         | datetime | Дата истечения срока действия ссылки      |
-| `user_registered`    | bool     | Связан с зарегистрированным пользователем |
 | `project`            | str      | Название проекта, если есть               |
 | `user_id`            | int      | Внешний ключ на `users.id`                |
 | `created_at`         | datetime | Дата создания                             |

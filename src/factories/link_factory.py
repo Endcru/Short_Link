@@ -19,7 +19,6 @@ class LinkFactory:
         link = Link(
             original_url=dto.original_url,
             short_code=generate_random_short_code(),
-            user_registred=False,
             project=None,
             transitions=0,
             last_transition_at=None,
@@ -33,7 +32,6 @@ class LinkFactory:
         link = Link(
             original_url=dto.original_url,
             short_code=dto.custom_alias if dto.custom_alias else generate_random_short_code(),
-            user_registred=True,
             project=dto.project,
             transitions=0,
             last_transition_at=None,
@@ -46,7 +44,6 @@ class LinkFactory:
     def create_link(
         original_url: str,
         short_code: str,
-        user_registred: bool = False,
         project: str = None,
         transitions: int = 0,
         last_transition_at: datetime = None,
@@ -56,7 +53,6 @@ class LinkFactory:
         return Link(
             original_url=original_url,
             short_code=short_code,
-            user_registred=user_registred,
             project=project,
             transitions=transitions,
             last_transition_at=last_transition_at,
