@@ -28,6 +28,12 @@ async def expired_links_delete_task():
             if deleted > 0:
                 logger.info(f"Удалено истекших ссылок: {deleted}")
             await asyncio.sleep(DELETE_INTERVAL_SECONDS)
+        except asyncio.CancelledError:
+            logger.info("Остановка задачи удаления истекших ссылок")
+            raise
+        except (TimeoutError, ConnectionError) as e:
+            logger.warning(f"Ошибка при удалении истекших ссылок: {e}")
+            await asyncio.sleep(DELETE_INTERVAL_SECONDS)
         except Exception as e:
             logger.exception(f"Ошибка при удалении истекших ссылок: {e}")
             await asyncio.sleep(DELETE_INTERVAL_SECONDS)
@@ -52,7 +58,10 @@ async def lifespan(app: FastAPI):
 
     # Shutdown / Завершение
     cleanup_task.cancel()
-    await cleanup_task
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
     print("Завершение работы...")
 
 # Create FastAPI application / Создать FastAPI приложение
