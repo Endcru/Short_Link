@@ -72,3 +72,35 @@ API доступен по ссылке: [Сокращатель ссылок](ht
 | `user_id`            | int      | Внешний ключ на `users.id`                |
 | `created_at`         | datetime | Дата создания                             |
 | `updated_at`         | datetime | Дата последнего обновления                |
+
+
+### Тестирование
+
+Для тестирования используется pytest. Для гарантии работы тестирования необходимо установить бибилиотеки из requirements.txt
+
+Для тестирования приложения перейдите в папку приложения и выполните следующие команды:
+
+```bash
+coverage run -m pytest
+coverage report
+coverage html
+```
+
+Отчёт о покрытии кода: [htmlcov/index.html](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Endcru/Short_Link/main/htmlcov/index.html)
+
+### Нагрузочное тестирование (Locust)
+
+Для нагрузочного тестирования приложения перейдите в папку приложения и выполните следующую команду:
+
+```bash
+locust
+```
+
+#### Отчёты нагрузочного тестирования:
+
+- **Без Redis**: [отчёт](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Endcru/Short_Link/main/locustreports/Locust_2026-03-15-03h02_locustfile.py_http___localhost_8008.html)
+- **С Redis**: [отчёт](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Endcru/Short_Link/main/locustreports/Locust_2026-03-15-03h15_locustfile.py_http___localhost_8008.html)
+
+#### Вывод по нагрузочному тестированию:
+
+Как можно заметить по статистике с использованием Redis запрос 	/link/[short_code] работает в два раза быстрее чем без его использования (3ms с Redis и 6ms без него)

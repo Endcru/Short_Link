@@ -23,3 +23,6 @@ try:
     DELETE_INTERVAL_SECONDS = int(os.getenv("DELETE_INTERVAL_SECONDS", "60"))
 except ValueError:
     DELETE_INTERVAL_SECONDS = 60
+
+USE_REDIS = os.getenv("USE_REDIS", "1") == "1"
+REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")

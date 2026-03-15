@@ -8,6 +8,7 @@ import logging
 
 from fastapi_cache import FastAPICache
 from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.backends.inmemory import InMemoryBackend
 from fastapi_cache.decorator import cache
 
 from redis import asyncio as aioredis
@@ -15,7 +16,7 @@ from redis import asyncio as aioredis
 from database.database import init_db
 from routers import user, link
 from services.link_service import LinkService
-from config import DELETE_INTERVAL_SECONDS
+from config import DELETE_INTERVAL_SECONDS, USE_REDIS, REDIS_URL
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,10 +41,14 @@ async def lifespan(app: FastAPI):
     await init_db()
     print("БД инициализирована")
 
-    print("Инициализация Redis...")
-    redis = aioredis.from_url("redis://localhost")
-    FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
-    print("Redis инициализирован")
+    if USE_REDIS:
+        print("Инициализация Redis...")
+        redis = aioredis.from_url(REDIS_URL)
+        FastAPICache.init(RedisBackend(redis), prefix="fastapi-cache")
+        print("Redis инициализирован")
+    else:
+        print("Кэш: InMemory (Redis отключён)")
+        FastAPICache.init(InMemoryBackend(), prefix="fastapi-cache")
 
     cleanup_task = asyncio.create_task(expired_links_delete_task())
     logger.info("Запуск удаления истёкших ссылок")
@@ -52,7 +57,10 @@ async def lifespan(app: FastAPI):
 
     # Shutdown / Завершение
     cleanup_task.cancel()
-    await cleanup_task
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
     print("Завершение работы...")
 
 # Create FastAPI application / Создать FastAPI приложение
