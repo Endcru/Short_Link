@@ -98,8 +98,10 @@ locust
 
 #### Отчёты нагрузочного тестирования:
 
-- **Без Redis**: [отчёт](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Endcru/Short_Link/main/locustreports/Locust_2026-03-15-03h02_locustfile.py_http___localhost_8008.html)
-- **С Redis**: [отчёт](https://htmlpreview.github.io/?https://raw.githubusercontent.com/Endcru/Short_Link/main/locustreports/Locust_2026-03-15-03h15_locustfile.py_http___localhost_8008.html)
+Для просмотров файлов их необходимо скачать для локального просмотра из-за наличия графиков
+
+- **Без Redis**: [отчёт](https://github.com/Endcru/Short_Link/blob/main/locustreports/Locust_2026-03-15-03h02_locustfile.py_http___localhost_8008.html)
+- **С Redis**: [отчёт](https://github.com/Endcru/Short_Link/blob/main/locustreports/Locust_2026-03-15-03h15_locustfile.py_http___localhost_8008.html)
 
 #### Вывод по нагрузочному тестированию:
 
