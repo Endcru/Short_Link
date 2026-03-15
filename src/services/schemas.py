@@ -133,10 +133,13 @@ class LinkCreate(BaseModel):
     @field_validator("expires_at")
     @classmethod
     def validate_expires_at(cls, value: Optional[datetime]) -> Optional[datetime]:
-        if value and value <= datetime.now(timezone.utc):
-            raise ValueError("expires_at must be in the future")
+        if value:
+            now = datetime.now(timezone.utc)
+            val = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+            if val <= now:
+                raise ValueError("expires_at must be in the future")
         return value
-    
+
 class LinkUpdate(BaseModel):
     custom_alias: Optional[str] = Field(None, max_length=255)
     project: Optional[str] = Field(None, max_length=255)
@@ -148,8 +151,11 @@ class LinkUpdate(BaseModel):
     @field_validator("expires_at")
     @classmethod
     def validate_expires_at(cls, value: Optional[datetime]) -> Optional[datetime]:
-        if value and value <= datetime.now(timezone.utc):
-            raise ValueError("expires_at must be in the future")
+        if value:
+            now = datetime.now(timezone.utc)
+            val = value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+            if val <= now:
+                raise ValueError("expires_at must be in the future")
         return value
 
 class LinkInDB(BaseModel):

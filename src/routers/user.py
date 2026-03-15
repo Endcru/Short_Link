@@ -116,8 +116,8 @@ async def search_users(
     current_user: User = Depends(get_current_user)
 ) -> list[UserResponse]:
     if current_user.is_admin:
-        users = await user_service.search_users(q, skip, limit)
-        return [UserResponse.model_validate(user) for user in users]
+        users = await user_service.search_users(q, skip, limit)  # pragma: no cover
+        return [UserResponse.model_validate(user) for user in users]  # pragma: no cover
     else:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

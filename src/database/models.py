@@ -26,7 +26,7 @@ class User(Base):
         nullable=False
     )
     def __repr__(self) -> str:
-        return f"<User(id={self.id}, user_id='{self.user_id}')>"
+        return f"<User(id={self.id}, username='{self.username}', email='{self.email}')>"
     
     def activate(self) -> None:
         """Activate user / Активировать пользователя"""
@@ -61,4 +61,4 @@ class Link(Base):
         nullable=False
     )
     def __repr__(self) -> str:
-        return f"<Link(id={self.id}, short_code='{self.short_code}, original_url='{self.original_url}')>"
+        return f"<Link(id={self.id}, short_code='{self.short_code}', original_url='{self.original_url}')>"
